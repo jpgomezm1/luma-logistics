@@ -125,6 +125,13 @@ async function generarVistaPrevia(bodega: string) {
     }
 
     // Llamar a la función optimize-routes existente
+    console.log('Llamando a optimize-routes con datos:', {
+      bodega: bodega,
+      fecha_planificacion: new Date().toISOString().split('T')[0],
+      camiones_disponibles: camiones.map(c => c.codigo),
+      pedidos_incluir: pedidos.map(p => p.id)
+    });
+
     const { data: optimizationResult, error: optimizeError } = await supabase.functions.invoke('optimize-routes', {
       body: {
         bodega: bodega,
@@ -134,43 +141,70 @@ async function generarVistaPrevia(bodega: string) {
       }
     });
 
-    if (optimizeError) throw optimizeError;
+    console.log('Resultado de optimize-routes:', { optimizationResult, optimizeError });
+
+    if (optimizeError) {
+      console.error('Error llamando optimize-routes:', optimizeError);
+      throw new Error(`Error en optimización: ${optimizeError.message}`);
+    }
+
+    if (!optimizationResult || !optimizationResult.rutas_optimizadas) {
+      console.error('Resultado de optimización inválido:', optimizationResult);
+      throw new Error('La función de optimización no devolvió un resultado válido');
+    }
 
     // Enriquecer el resultado con información adicional para la vista previa
+    console.log('Enriqueciendo rutas con detalles...');
     const rutasEnriquecidas = await Promise.all(
-      optimizationResult.rutas_optimizadas.map(async (ruta: any) => {
+      (optimizationResult.rutas_optimizadas || []).map(async (ruta: any) => {
         const camion = camiones.find(c => c.codigo === ruta.camion_codigo);
+        if (!camion) {
+          console.warn(`Camión no encontrado: ${ruta.camion_codigo}`);
+          return null;
+        }
         const pedidosDetalle = await Promise.all(
-          ruta.pedidos.map(async (pedidoRuta: any) => {
+          (ruta.pedidos || []).map(async (pedidoRuta: any) => {
             const pedido = pedidos.find(p => p.id === pedidoRuta.id);
+            if (!pedido) {
+              console.warn(`Pedido no encontrado: ${pedidoRuta.id}`);
+              return null;
+            }
             return {
               ...pedidoRuta,
-              nombre_cliente: pedido?.nombre_cliente,
-              direccion_entrega: pedido?.direccion_entrega,
-              ciudad_entrega: pedido?.ciudad_entrega,
-              volumen_total_m3: pedido?.volumen_total_m3,
-              prioridad: pedido?.prioridad
+              nombre_cliente: pedido.nombre_cliente,
+              direccion_entrega: pedido.direccion_entrega,
+              ciudad_entrega: pedido.ciudad_entrega,
+              volumen_total_m3: pedido.volumen_total_m3,
+              prioridad: pedido.prioridad
             };
           })
         );
 
+        // Filtrar pedidos nulos
+        const pedidosValidados = pedidosDetalle.filter(p => p !== null);
+
         return {
           ...ruta,
           camion: {
-            id: camion?.id,
-            codigo: camion?.codigo,
-            conductor_nombre: camion?.conductor_nombre,
-            conductor_telefono: camion?.conductor_telefono,
-            capacidad_maxima_m3: camion?.capacidad_maxima_m3
+            id: camion.id,
+            codigo: camion.codigo,
+            conductor_nombre: camion.conductor_nombre,
+            conductor_telefono: camion.conductor_telefono,
+            capacidad_maxima_m3: camion.capacidad_maxima_m3
           },
-          pedidos_detalle: pedidosDetalle
+          pedidos_detalle: pedidosValidados
         };
       })
     );
 
+    // Filtrar rutas nulas
+    const rutasValidadas = rutasEnriquecidas.filter(r => r !== null);
+
+    console.log(`Rutas enriquecidas: ${rutasValidadas.length}`);
+
     // Obtener detalles de pedidos no asignados
     const pedidosNoAsignadosDetalle = pedidos.filter(p => 
-      optimizationResult.pedidos_no_asignados.includes(p.id)
+      (optimizationResult.pedidos_no_asignados || []).includes(p.id)
     ).map(p => ({
       id: p.id,
       nombre_cliente: p.nombre_cliente,
@@ -179,21 +213,36 @@ async function generarVistaPrevia(bodega: string) {
       prioridad: p.prioridad
     }));
 
-    return new Response(JSON.stringify({
+    console.log('Preparando respuesta final...');
+
+    const response = {
       success: true,
       preview: true,
-      rutas_optimizadas: rutasEnriquecidas,
+      rutas_optimizadas: rutasValidadas,
       pedidos_no_asignados: pedidosNoAsignadosDetalle,
       razon: optimizationResult.razon || "Optimización completada",
       bodega: bodega,
       fecha_generacion: new Date().toISOString()
-    }), {
+    };
+
+    console.log('Respuesta final:', JSON.stringify(response, null, 2));
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error generando vista previa:', error);
-    throw error;
+    console.error('Stack trace completo:', error.stack);
+    
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message || 'Error interno en generarVistaPrevia',
+      details: error.stack
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 }
 
