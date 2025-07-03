@@ -1,1 +1,16 @@
 project_id = "zwqezgwywxxvjufxdsjz"
+
+[functions.auto-assign-logistics]
+verify_jwt = false
+
+[functions.generate-daily-routes]
+verify_jwt = false
+
+[functions.update-route-status]
+verify_jwt = false
+
+[functions.efficiency-analytics]
+verify_jwt = false
+
+[functions.optimize-routes]
+verify_jwt = false
