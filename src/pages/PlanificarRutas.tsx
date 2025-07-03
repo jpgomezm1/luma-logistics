@@ -356,7 +356,7 @@ const PlanificarRutas = () => {
                           <div>
                             <span className="font-medium">{pedido.orden}. </span>
                             <span>{pedido.nombre_cliente}</span>
-                            <span className="text-muted-foreground ml-2">({pedido.direccion_entrega.substring(0, 30)}...)</span>
+                            <span className="text-muted-foreground ml-2">({(pedido.direccion_entrega || '').substring(0, 30)}...)</span>
                           </div>
                           <span className="text-muted-foreground">{pedido.hora_estimada}</span>
                         </div>

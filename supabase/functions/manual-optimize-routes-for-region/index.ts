@@ -171,11 +171,12 @@ async function generarVistaPrevia(bodega: string) {
             }
             return {
               ...pedidoRuta,
-              nombre_cliente: pedido.nombre_cliente,
-              direccion_entrega: pedido.direccion_entrega,
-              ciudad_entrega: pedido.ciudad_entrega,
-              volumen_total_m3: pedido.volumen_total_m3,
-              prioridad: pedido.prioridad
+              nombre_cliente: pedido.nombre_cliente || 'Cliente no encontrado',
+              direccion_entrega: pedido.direccion_entrega || 'Dirección no encontrada',
+              ciudad_entrega: pedido.ciudad_entrega || 'Ciudad no especificada',
+              volumen_total_m3: pedido.volumen_total_m3 || 0,
+              prioridad: pedido.prioridad || 1,
+              hora_estimada: pedidoRuta.hora_estimada || 'N/A'
             };
           })
         );
@@ -269,9 +270,9 @@ async function aprobarYAsignarRutas(rutasAprobadas: any[]) {
           ruta_optimizada: ruta.pedidos_detalle.map(p => ({
             pedido_id: p.id,
             orden: p.orden,
-            hora_estimada: p.hora_estimada,
-            cliente: p.nombre_cliente,
-            direccion: p.direccion_entrega
+            hora_estimada: p.hora_estimada || 'N/A',
+            cliente: p.nombre_cliente || 'Cliente no encontrado',
+            direccion: p.direccion_entrega || 'Dirección no encontrada'
           })),
           observaciones: `Ruta optimizada manualmente - ${ruta.resumen.total_pedidos} pedidos`
         })
