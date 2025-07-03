@@ -9,41 +9,233 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bodegas: {
+        Row: {
+          activo: boolean | null
+          capacidad_total_m3: number | null
+          created_at: string | null
+          departamento: string
+          direccion_base: string
+          id: number
+          max_dias_entrega: number
+          nombre: string
+        }
+        Insert: {
+          activo?: boolean | null
+          capacidad_total_m3?: number | null
+          created_at?: string | null
+          departamento: string
+          direccion_base: string
+          id?: number
+          max_dias_entrega: number
+          nombre: string
+        }
+        Update: {
+          activo?: boolean | null
+          capacidad_total_m3?: number | null
+          created_at?: string | null
+          departamento?: string
+          direccion_base?: string
+          id?: number
+          max_dias_entrega?: number
+          nombre?: string
+        }
+        Relationships: []
+      }
+      camiones: {
+        Row: {
+          activo: boolean | null
+          bodega_id: number
+          capacidad_maxima_m3: number
+          codigo: string
+          conductor_nombre: string | null
+          conductor_telefono: string | null
+          created_at: string | null
+          estado: string | null
+          id: number
+        }
+        Insert: {
+          activo?: boolean | null
+          bodega_id: number
+          capacidad_maxima_m3: number
+          codigo: string
+          conductor_nombre?: string | null
+          conductor_telefono?: string | null
+          created_at?: string | null
+          estado?: string | null
+          id?: number
+        }
+        Update: {
+          activo?: boolean | null
+          bodega_id?: number
+          capacidad_maxima_m3?: number
+          codigo?: string
+          conductor_nombre?: string | null
+          conductor_telefono?: string | null
+          created_at?: string | null
+          estado?: string | null
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "camiones_bodega_id_fkey"
+            columns: ["bodega_id"]
+            isOneToOne: false
+            referencedRelation: "bodegas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedidos: {
         Row: {
+          bodega_asignada: string | null
           ciudad_entrega: string | null
           direccion_entrega: string
           estado: string | null
           fecha_creacion: string | null
+          fecha_limite_entrega: string | null
           id: number
           items: Json
           nombre_cliente: string
           numero_orden: number | null
+          observaciones_logistica: string | null
+          peso_total_kg: number | null
+          prioridad: number | null
+          ruta_entrega_id: number | null
           telegram_user_id: number | null
+          volumen_total_m3: number | null
         }
         Insert: {
+          bodega_asignada?: string | null
           ciudad_entrega?: string | null
           direccion_entrega: string
           estado?: string | null
           fecha_creacion?: string | null
+          fecha_limite_entrega?: string | null
           id?: number
           items: Json
           nombre_cliente: string
           numero_orden?: number | null
+          observaciones_logistica?: string | null
+          peso_total_kg?: number | null
+          prioridad?: number | null
+          ruta_entrega_id?: number | null
           telegram_user_id?: number | null
+          volumen_total_m3?: number | null
         }
         Update: {
+          bodega_asignada?: string | null
           ciudad_entrega?: string | null
           direccion_entrega?: string
           estado?: string | null
           fecha_creacion?: string | null
+          fecha_limite_entrega?: string | null
           id?: number
           items?: Json
           nombre_cliente?: string
           numero_orden?: number | null
+          observaciones_logistica?: string | null
+          peso_total_kg?: number | null
+          prioridad?: number | null
+          ruta_entrega_id?: number | null
           telegram_user_id?: number | null
+          volumen_total_m3?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_ruta_entrega_id_fkey"
+            columns: ["ruta_entrega_id"]
+            isOneToOne: false
+            referencedRelation: "rutas_entrega"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      productos_volumen: {
+        Row: {
+          activo: boolean | null
+          categoria: string | null
+          created_at: string | null
+          id: number
+          nombre_producto: string
+          peso_unitario_kg: number | null
+          volumen_unitario_m3: number
+        }
+        Insert: {
+          activo?: boolean | null
+          categoria?: string | null
+          created_at?: string | null
+          id?: number
+          nombre_producto: string
+          peso_unitario_kg?: number | null
+          volumen_unitario_m3: number
+        }
+        Update: {
+          activo?: boolean | null
+          categoria?: string | null
+          created_at?: string | null
+          id?: number
+          nombre_producto?: string
+          peso_unitario_kg?: number | null
+          volumen_unitario_m3?: number
         }
         Relationships: []
+      }
+      rutas_entrega: {
+        Row: {
+          camion_id: number
+          created_at: string | null
+          distancia_total_km: number | null
+          estado: string | null
+          fecha_programada: string
+          hora_fin_estimada: string | null
+          hora_inicio: string | null
+          id: number
+          observaciones: string | null
+          ruta_optimizada: Json | null
+          tiempo_estimado_horas: number | null
+          updated_at: string | null
+          volumen_total_m3: number | null
+        }
+        Insert: {
+          camion_id: number
+          created_at?: string | null
+          distancia_total_km?: number | null
+          estado?: string | null
+          fecha_programada: string
+          hora_fin_estimada?: string | null
+          hora_inicio?: string | null
+          id?: number
+          observaciones?: string | null
+          ruta_optimizada?: Json | null
+          tiempo_estimado_horas?: number | null
+          updated_at?: string | null
+          volumen_total_m3?: number | null
+        }
+        Update: {
+          camion_id?: number
+          created_at?: string | null
+          distancia_total_km?: number | null
+          estado?: string | null
+          fecha_programada?: string
+          hora_fin_estimada?: string | null
+          hora_inicio?: string | null
+          id?: number
+          observaciones?: string | null
+          ruta_optimizada?: Json | null
+          tiempo_estimado_horas?: number | null
+          updated_at?: string | null
+          volumen_total_m3?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rutas_entrega_camion_id_fkey"
+            columns: ["camion_id"]
+            isOneToOne: false
+            referencedRelation: "camiones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
