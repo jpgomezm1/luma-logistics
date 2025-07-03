@@ -28,6 +28,12 @@ const navigationItems = [
     url: "/logistics",
     icon: Truck,
     description: "Gestión de bodegas y entregas"
+  },
+  {
+    title: "Gestión de Rutas",
+    url: "/logistics/routes",
+    icon: Package,
+    description: "Control de rutas y conductores"
   }
 ];
 
@@ -63,7 +69,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {navigationItems.map((item) => {
                 const isActive = location.pathname === item.url || 
-                  (item.url === "/logistics" && location.pathname.startsWith("/logistics"));
+                  (item.url === "/logistics" && location.pathname === "/logistics") ||
+                  (item.url === "/logistics/routes" && location.pathname === "/logistics/routes");
                 
                 return (
                   <SidebarMenuItem key={item.title}>

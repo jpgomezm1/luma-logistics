@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Logistics from "./pages/Logistics";
 import BodegaDashboard from "./pages/BodegaDashboard";
+import RoutesManagement from "./pages/RoutesManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/logistics" element={<Logistics />} />
           <Route path="/logistics/bodega/:bodegaId" element={<BodegaDashboard />} />
+          <Route path="/logistics/routes" element={<RoutesManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
