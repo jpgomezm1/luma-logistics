@@ -11,30 +11,36 @@ export type Database = {
     Tables: {
       pedidos: {
         Row: {
+          ciudad_entrega: string | null
           direccion_entrega: string
           estado: string | null
           fecha_creacion: string | null
           id: number
           items: Json
           nombre_cliente: string
+          numero_orden: number | null
           telegram_user_id: number | null
         }
         Insert: {
+          ciudad_entrega?: string | null
           direccion_entrega: string
           estado?: string | null
           fecha_creacion?: string | null
           id?: number
           items: Json
           nombre_cliente: string
+          numero_orden?: number | null
           telegram_user_id?: number | null
         }
         Update: {
+          ciudad_entrega?: string | null
           direccion_entrega?: string
           estado?: string | null
           fecha_creacion?: string | null
           id?: number
           items?: Json
           nombre_cliente?: string
+          numero_orden?: number | null
           telegram_user_id?: number | null
         }
         Relationships: []
