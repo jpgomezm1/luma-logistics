@@ -7,6 +7,7 @@ import BodegaCard from '@/components/logistics/BodegaCard';
 import AlertasPanel from '@/components/logistics/AlertasPanel';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { toast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export interface BodegaEstadisticas {
   id: number;
@@ -137,38 +138,40 @@ const Logistics = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <Header 
-        user={user} 
-        stats={stats}
-        onLogout={() => supabase.auth.signOut()}
-      />
-      
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <AlertasPanel bodegas={bodegas} />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bodegas.map((bodega) => (
-            <BodegaCard
-              key={bodega.id}
-              bodega={bodega}
-              onVerDetalle={(id) => navigate(`/logistics/bodega/${id}`)}
-              onPlanificarRutas={(id) => navigate(`/logistics/planificar/${id}`)}
-            />
-          ))}
-        </div>
-
-        {bodegas.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              No hay bodegas configuradas
-            </p>
+    <DashboardLayout>
+      <div className="bg-muted/30 min-h-full">
+        <Header 
+          user={user} 
+          stats={stats}
+          onLogout={() => supabase.auth.signOut()}
+        />
+        
+        <main className="container mx-auto px-4 py-6">
+          <div className="mb-6">
+            <AlertasPanel bodegas={bodegas} />
           </div>
-        )}
-      </main>
-    </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bodegas.map((bodega) => (
+              <BodegaCard
+                key={bodega.id}
+                bodega={bodega}
+                onVerDetalle={(id) => navigate(`/logistics/bodega/${id}`)}
+                onPlanificarRutas={(id) => navigate(`/logistics/planificar/${id}`)}
+              />
+            ))}
+          </div>
+
+          {bodegas.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">
+                No hay bodegas configuradas
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
+    </DashboardLayout>
   );
 };
 

@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export interface Camion {
   id: number;
@@ -180,66 +181,68 @@ const BodegaDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <Header 
-        user={user} 
-        stats={stats}
-        onLogout={() => supabase.auth.signOut()}
-      />
-      
-      <main className="container mx-auto px-4 py-6">
-        <div className="mb-6 flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/logistics')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Bodega {bodega?.nombre}
-            </h1>
-            <p className="text-muted-foreground">
-              {bodega?.departamento} • Max. entrega: {bodega?.max_dias_entrega} días
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Camiones */}
-          <div className="lg:col-span-1">
-            <h2 className="text-lg font-semibold mb-4">Flota de Camiones</h2>
-            <div className="space-y-4">
-              {camiones.map((camion) => (
-                <CamionStatus key={camion.id} camion={camion} />
-              ))}
+    <DashboardLayout>
+      <div className="bg-muted/30 min-h-full">
+        <Header 
+          user={user} 
+          stats={stats}
+          onLogout={() => supabase.auth.signOut()}
+        />
+        
+        <main className="container mx-auto px-4 py-6">
+          <div className="mb-6 flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/logistics')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                Bodega {bodega?.nombre}
+              </h1>
+              <p className="text-muted-foreground">
+                {bodega?.departamento} • Max. entrega: {bodega?.max_dias_entrega} días
+              </p>
             </div>
           </div>
 
-          {/* Rutas Timeline */}
-          <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold mb-4">Rutas Programadas</h2>
-            <RutasTimeline rutas={rutas} />
-          </div>
-        </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Camiones */}
+            <div className="lg:col-span-1">
+              <h2 className="text-lg font-semibold mb-4">Flota de Camiones</h2>
+              <div className="space-y-4">
+                {camiones.map((camion) => (
+                  <CamionStatus key={camion.id} camion={camion} />
+                ))}
+              </div>
+            </div>
 
-        {/* Pedidos pendientes */}
-        <div>
-          <h2 className="text-lg font-semibold mb-4">
-            Pedidos Pendientes ({pedidosPendientes.length})
-          </h2>
-          <PedidosTable 
-            pedidos={pedidosPendientes} 
-            onAsignarRuta={(pedidoIds) => {
-              // Navegar al planificador con pedidos preseleccionados
-              navigate(`/logistics/planificar/${bodegaId}?pedidos=${pedidoIds.join(',')}`);
-            }}
-          />
-        </div>
-      </main>
-    </div>
+            {/* Rutas Timeline */}
+            <div className="lg:col-span-2">
+              <h2 className="text-lg font-semibold mb-4">Rutas Programadas</h2>
+              <RutasTimeline rutas={rutas} />
+            </div>
+          </div>
+
+          {/* Pedidos pendientes */}
+          <div>
+            <h2 className="text-lg font-semibold mb-4">
+              Pedidos Pendientes ({pedidosPendientes.length})
+            </h2>
+            <PedidosTable 
+              pedidos={pedidosPendientes} 
+              onAsignarRuta={(pedidoIds) => {
+                // Navegar al planificador con pedidos preseleccionados
+                navigate(`/logistics/planificar/${bodegaId}?pedidos=${pedidoIds.join(',')}`);
+              }}
+            />
+          </div>
+        </main>
+      </div>
+    </DashboardLayout>
   );
 };
 

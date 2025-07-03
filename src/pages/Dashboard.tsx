@@ -7,6 +7,7 @@ import PedidoCard from '@/components/PedidoCard';
 import Filtros from '@/components/Filtros';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { toast } from '@/hooks/use-toast';
+import { DashboardLayout } from '@/components/DashboardLayout';
 
 export interface Pedido {
   id: number;
@@ -175,44 +176,46 @@ const Dashboard = () => {
   const stats = calcularEstadisticas();
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <Header 
-        user={user} 
-        stats={stats}
-        onLogout={() => supabase.auth.signOut()}
-      />
-      
-      <main className="container mx-auto px-4 py-6">
-        <Filtros
-          filtroEstado={filtroEstado}
-          onFiltroChange={setFiltroEstado}
-          busqueda={busqueda}
-          onBusquedaChange={setBusqueda}
-          totalResultados={filteredPedidos.length}
+    <DashboardLayout>
+      <div className="bg-muted/30 min-h-full">
+        <Header 
+          user={user} 
+          stats={stats}
+          onLogout={() => supabase.auth.signOut()}
         />
+        
+        <main className="container mx-auto px-4 py-6">
+          <Filtros
+            filtroEstado={filtroEstado}
+            onFiltroChange={setFiltroEstado}
+            busqueda={busqueda}
+            onBusquedaChange={setBusqueda}
+            totalResultados={filteredPedidos.length}
+          />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPedidos.map((pedido) => (
-            <PedidoCard
-              key={pedido.id}
-              pedido={pedido}
-              onMarcarDespachado={marcarComoDespachado}
-            />
-          ))}
-        </div>
-
-        {filteredPedidos.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              {busqueda || filtroEstado !== 'todos' 
-                ? 'No se encontraron pedidos con los filtros aplicados'
-                : 'No hay pedidos registrados'
-              }
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPedidos.map((pedido) => (
+              <PedidoCard
+                key={pedido.id}
+                pedido={pedido}
+                onMarcarDespachado={marcarComoDespachado}
+              />
+            ))}
           </div>
-        )}
-      </main>
-    </div>
+
+          {filteredPedidos.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">
+                {busqueda || filtroEstado !== 'todos' 
+                  ? 'No se encontraron pedidos con los filtros aplicados'
+                  : 'No hay pedidos registrados'
+                }
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
+    </DashboardLayout>
   );
 };
 
