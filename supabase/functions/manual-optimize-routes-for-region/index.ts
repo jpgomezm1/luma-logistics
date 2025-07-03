@@ -17,7 +17,13 @@ serve(async (req) => {
   }
 
   try {
-    const { bodega, accion, rutas_aprobadas } = await req.json();
+    console.log('Método de request:', req.method);
+    console.log('URL:', req.url);
+    
+    const requestBody = await req.json();
+    console.log('Body recibido:', JSON.stringify(requestBody));
+    
+    const { bodega, accion, rutas_aprobadas } = requestBody;
     
     console.log(`Procesando optimización manual para bodega: ${bodega}, acción: ${accion}`);
 
@@ -28,14 +34,16 @@ serve(async (req) => {
       // Aprobar y asignar las rutas generadas
       return await aprobarYAsignarRutas(rutas_aprobadas);
     } else {
-      throw new Error('Acción no válida. Use "generar_preview" o "aprobar_rutas"');
+      throw new Error(`Acción no válida: "${accion}". Use "generar_preview" o "aprobar_rutas"`);
     }
 
   } catch (error) {
     console.error('Error en manual-optimize-routes-for-region:', error);
+    console.error('Stack trace:', error.stack);
     return new Response(JSON.stringify({ 
-      error: error.message,
-      success: false
+      error: error.message || 'Error interno del servidor',
+      success: false,
+      details: error.stack
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -45,31 +53,54 @@ serve(async (req) => {
 
 async function generarVistaPrevia(bodega: string) {
   try {
+    console.log(`Generando vista previa para bodega: ${bodega}`);
+    
     // Obtener información de la bodega
-    const { data: bodegaInfo } = await supabase
+    const { data: bodegaInfo, error: bodegaError } = await supabase
       .from('bodegas')
       .select('*')
       .eq('nombre', bodega)
       .single();
+
+    console.log('Resultado busqueda bodega:', { bodegaInfo, bodegaError });
+
+    if (bodegaError) {
+      console.error('Error obteniendo bodega:', bodegaError);
+      throw new Error(`Error buscando bodega ${bodega}: ${bodegaError.message}`);
+    }
 
     if (!bodegaInfo) {
       throw new Error(`Bodega ${bodega} no encontrada`);
     }
 
     // Obtener pedidos pendientes para esta bodega
-    const { data: pedidos } = await supabase
+    const { data: pedidos, error: pedidosError } = await supabase
       .from('pedidos')
       .select('*')
       .eq('bodega_asignada', bodega)
       .eq('estado', 'pendiente');
 
+    console.log('Resultado busqueda pedidos:', { pedidos, pedidosError });
+
+    if (pedidosError) {
+      console.error('Error obteniendo pedidos:', pedidosError);
+      throw new Error(`Error buscando pedidos: ${pedidosError.message}`);
+    }
+
     // Obtener camiones disponibles para esta bodega
-    const { data: camiones } = await supabase
+    const { data: camiones, error: camionesError } = await supabase
       .from('camiones')
       .select('*')
       .eq('bodega_id', bodegaInfo.id)
       .eq('estado', 'disponible')
       .eq('activo', true);
+
+    console.log('Resultado busqueda camiones:', { camiones, camionesError });
+
+    if (camionesError) {
+      console.error('Error obteniendo camiones:', camionesError);
+      throw new Error(`Error buscando camiones: ${camionesError.message}`);
+    }
 
     if (!pedidos || pedidos.length === 0) {
       return new Response(JSON.stringify({
