@@ -12,5 +12,8 @@ verify_jwt = false
 [functions.efficiency-analytics]
 verify_jwt = false
 
+[functions.manual-optimize-routes-for-region]
+verify_jwt = false
+
 [functions.optimize-routes]
 verify_jwt = false

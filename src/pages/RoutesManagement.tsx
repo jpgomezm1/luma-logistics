@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RutaCamionCard } from '@/components/routes/RutaCamionCard';
 import { OptimizationPanel } from '@/components/routes/OptimizationPanel';
 import { MetricsPanel } from '@/components/routes/MetricsPanel';
+import { RegionOptimizationModal } from '@/components/routes/RegionOptimizationModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { toast } from '@/hooks/use-toast';
 import { Truck, Calendar, Download, RefreshCw } from 'lucide-react';
@@ -242,6 +243,9 @@ const RoutesManagement = () => {
                   <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                   Refrescar
                 </Button>
+                <RegionOptimizationModal 
+                  onOptimizationComplete={() => fetchRutasData(false)}
+                />
                 <Button
                   onClick={handleOptimizeAll}
                   variant="default"
